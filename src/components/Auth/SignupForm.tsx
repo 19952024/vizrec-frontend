@@ -11,7 +11,21 @@ export default function SignupForm() {
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "available" | "registered" | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const checkEmailInDatabase = async () => {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    setEmailStatus("checking");
+    try {
+      const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email.trim())}`);
+      const data = await res.json();
+      setEmailStatus(data.exists ? "registered" : "available");
+    } catch {
+      setEmailStatus(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +52,14 @@ export default function SignupForm() {
       return;
     }
 
+    if (emailStatus === "registered") {
+      setError("This user is already registered. Please sign in instead.");
+      return;
+    }
+
     setLoading(true);
+    setError("");
+    setSuccess("");
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -55,8 +76,12 @@ export default function SignupForm() {
         typeof window !== "undefined" && localStorage.setItem("auth_token", data.token);
         if (data.user) localStorage.setItem("auth_user", JSON.stringify(data.user));
       }
-      router.push("/");
-      router.refresh();
+      setSuccess(data.message || "Registration successful. Your data has been stored in the database.");
+      setError("");
+      setTimeout(() => {
+        router.push("/");
+        router.refresh();
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
@@ -69,6 +94,11 @@ export default function SignupForm() {
       {error && (
         <div className="mb-6 rounded-xs border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
           {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-6 rounded-xs border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+          {success}
         </div>
       )}
       <div className="mb-8">
@@ -92,10 +122,17 @@ export default function SignupForm() {
           type="email"
           id="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); setEmailStatus(null); }}
+          onBlur={checkEmailInDatabase}
           placeholder="Enter your Email"
           className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color focus:border-primary dark:focus:border-primary w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:focus:shadow-none"
         />
+        {emailStatus === "available" && (
+          <p className="text-primary mt-1 text-xs">Email is available. You can register.</p>
+        )}
+        {emailStatus === "registered" && (
+          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">This user is already registered. Please sign in.</p>
+        )}
       </div>
       <div className="mb-8">
         <label htmlFor="password" className="text-dark mb-3 block text-sm dark:text-white">

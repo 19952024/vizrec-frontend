@@ -59,7 +59,7 @@ class AuthService {
     this.load();
     const emailLower = email.toLowerCase().trim();
     if (this.users.some(u => u.email === emailLower)) {
-      throw new Error('Users who have already registered are already registered.');
+      throw new Error('This user is already registered. Please sign in instead.');
     }
     const id = Date.now().toString() + Math.random().toString(36).slice(2);
     const user: User = {
@@ -73,8 +73,15 @@ class AuthService {
     this.save();
     return {
       user: { id: user.id, name: user.name, email: user.email },
-      token: createToken(user.id, user.email)
+      token: createToken(user.id, user.email),
+      message: "Registration successful. (Using local storage. Set BACKEND_URL to use database.)",
+      stored_in_database: false,
     };
+  }
+
+  checkEmailExists(email: string): boolean {
+    this.load();
+    return this.users.some(u => u.email === email.toLowerCase().trim());
   }
 
   async login(email: string, password: string): Promise<{ user: { id: string; name: string; email: string }; token: string }> {
