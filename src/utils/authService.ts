@@ -55,7 +55,7 @@ class AuthService {
     }
   }
 
-  async register(name: string, email: string, password: string): Promise<{ user: { id: string; name: string; email: string }; token: string }> {
+  async register(name: string, email: string, password: string): Promise<{ user: { id: string; name: string; email: string }; token: string; message?: string; stored_in_database?: boolean }> {
     this.load();
     const emailLower = email.toLowerCase().trim();
     if (this.users.some(u => u.email === emailLower)) {
