@@ -59,7 +59,7 @@ class AuthService {
     this.load();
     const emailLower = email.toLowerCase().trim();
     if (this.users.some(u => u.email === emailLower)) {
-      throw new Error('Email already registered');
+      throw new Error('Users who have already registered are already registered.');
     }
     const id = Date.now().toString() + Math.random().toString(36).slice(2);
     const user: User = {

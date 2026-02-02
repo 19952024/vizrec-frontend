@@ -34,7 +34,7 @@ export default function SigninForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.detail || data.error || "Login failed");
       }
 
       if (data.token) {

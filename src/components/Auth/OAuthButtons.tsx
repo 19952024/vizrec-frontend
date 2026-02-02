@@ -9,9 +9,8 @@ type Props = {
 export default function OAuthButtons({ variant = "signin" }: Props) {
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleOAuthClick = (provider: string) => {
-    setMessage(`${provider} login is coming soon. Please use email to sign ${variant === "signin" ? "in" : "up"}.`);
-    setTimeout(() => setMessage(null), 4000);
+  const handleOAuthClick = (_provider: string, path: string) => {
+    window.location.href = `/api/auth/${path}`;
   };
 
   return (
@@ -23,7 +22,7 @@ export default function OAuthButtons({ variant = "signin" }: Props) {
       )}
       <button
         type="button"
-        onClick={() => handleOAuthClick("Google")}
+        onClick={() => handleOAuthClick("Google", "google")}
         className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary mb-6 flex w-full items-center justify-center rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:hover:shadow-none"
       >
         <span className="mr-3">
@@ -41,7 +40,7 @@ export default function OAuthButtons({ variant = "signin" }: Props) {
       </button>
       <button
         type="button"
-        onClick={() => handleOAuthClick("GitHub")}
+        onClick={() => handleOAuthClick("GitHub", "github")}
         className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary mb-6 flex w-full items-center justify-center rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:hover:shadow-none"
       >
         <span className="mr-3">

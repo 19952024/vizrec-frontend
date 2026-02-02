@@ -48,7 +48,7 @@ export default function SignupForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Registration failed");
+        throw new Error(data.detail || data.error || "Registration failed");
       }
 
       if (data.token) {
