@@ -203,17 +203,20 @@ const SentraCoreSectionOne = () => {
 
   const loadSavedConfigurations = async () => {
     setIsLoadingConfigurations(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
     try {
-      const response = await fetch('/api/sentra-core/');
+      const response = await fetch('/api/sentra-core/', { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const configurations = await response.json();
+      const data = await response.json();
+      const configurations = Array.isArray(data) ? data : [];
       console.log('Loaded configurations:', configurations);
-      
-      // Map backend data to frontend format
+
       const validConfigurations = configurations.map((config: any) => ({
-        id: config._id || config.id, // Handle both _id (MongoDB) and id fields
+        id: config._id || config.id,
         name: config.name,
         description: config.description,
         created_at: config.created_at
@@ -224,11 +227,13 @@ const SentraCoreSectionOne = () => {
         }
         return true;
       });
-      
+
       setSavedConfigurations(validConfigurations);
     } catch (error) {
       console.error('Error loading saved configurations:', error);
+      setSavedConfigurations([]);
     } finally {
+      clearTimeout(timeoutId);
       setIsLoadingConfigurations(false);
     }
   };
@@ -600,8 +605,9 @@ const SentraCoreSectionOne = () => {
       showToast('success', 'Success', message);
       
       // If this was a new save, update the current loaded configuration ID
-      if (!isUpdate && result.id) {
-        setCurrentLoadedConfigurationId(result.id);
+      const newId = result._id ?? result.id;
+      if (!isUpdate && newId) {
+        setCurrentLoadedConfigurationId(newId);
       }
       
       // Refresh the saved configurations list

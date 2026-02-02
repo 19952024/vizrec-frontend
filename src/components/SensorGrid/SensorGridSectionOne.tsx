@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ScatterChart, Scatter } from 'recharts';
 import * as yaml from 'js-yaml';
 
@@ -734,7 +734,7 @@ const SensorGridSectionOne = () => {
   };
 
   // Configuration loading
-  const loadSavedConfigurations = async () => {
+  const loadSavedConfigurations = useCallback(async () => {
     setIsLoadingConfigurations(true);
     try {
       const response = await fetch('/api/sentra-core/');
@@ -765,7 +765,7 @@ const SensorGridSectionOne = () => {
     } finally {
       setIsLoadingConfigurations(false);
     }
-  };
+  }, []);
 
   const loadConfiguration = async () => {
     if (!selectedConfigurationId) {
@@ -866,7 +866,7 @@ const SensorGridSectionOne = () => {
   };
 
   // Graph visualization functions
-  const getAvailableDataFields = (): string[] => {
+  const getAvailableDataFields = useCallback((): string[] => {
     if (sensorFiles.length === 0) return [];
     
     const allFields = new Set<string>();
@@ -895,7 +895,7 @@ const SensorGridSectionOne = () => {
     });
     
     return Array.from(allFields);
-  };
+  }, [sensorFiles]);
 
   const getChartData = () => {
     if (sensorFiles.length === 0 || selectedDataFields.length === 0) return [];
@@ -1189,11 +1189,11 @@ const SensorGridSectionOne = () => {
       const availableFields = getAvailableDataFields();
       setSelectedDataFields(availableFields.slice(0, 3)); // Select first 3 fields by default
     }
-  }, [sensorFiles]);
+  }, [sensorFiles, selectedDataFields.length, getAvailableDataFields]);
 
   useEffect(() => {
     loadSavedConfigurations();
-  }, []);
+  }, [loadSavedConfigurations]);
 
   // Cleanup intervals on unmount
   useEffect(() => {

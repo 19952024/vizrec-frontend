@@ -66,4 +66,30 @@ export async function PUT(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    const deleted = sentraCoreService.deleteConfiguration(id);
+
+    if (!deleted) {
+      return NextResponse.json(
+        { error: 'Configuration not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: 'Configuration deleted successfully' });
+  } catch (error) {
+    console.error('Error in DELETE /api/sentra-core/[id]:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 } 

@@ -1,3 +1,26 @@
+# VizRec Frontend
+
+Next.js frontend for VizRec (Visionary Robotics Evolution Core). Compatible with the FastAPI backend for SentraCore configuration storage.
+
+## Authentication Status
+
+See [AUTH_STATUS.md](../AUTH_STATUS.md) in the project root for a detailed audit of what's implemented:
+- **Email registration & sign-in**: ✅ Working
+- **Google / GitHub login**: Planned (buttons show "Coming soon" when clicked)
+
+## Frontend + Backend Integration
+
+**Option A: File-based storage (default)**  
+Run the frontend alone. API requests use built-in Next.js routes and store data in `data/sentra-core-configurations.json`.
+
+**Option B: Use FastAPI backend**  
+1. Start the backend: `cd vizrec-backend && python main.py`  
+2. Copy `.env.example` to `.env.local` and set `BACKEND_URL=http://localhost:8000`  
+3. Start the frontend: `npm run dev`  
+4. All `/api/sentra-core/*` requests will be proxied to the backend (MongoDB or in-memory store).
+
+---
+
 # Startup - Free Next.js Startup Website Template
 
 Startup free, open-source, and premium-quality startup website template for Next.js comes with everything you need to launch a startup, business, or SaaS website, including all essential sections, components, and pages.
